@@ -1,0 +1,8 @@
+modules/__pycache__
+__pycache__
+*.csv
+data
+*.csv#
+.ipynb_checkpoints
+glove-50d.bin
+checkpoints/
