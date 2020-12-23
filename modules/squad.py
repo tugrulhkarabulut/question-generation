@@ -14,7 +14,7 @@ class SquadProcessor:
             print('Data is not loaded!')
             return
         
-        qa_dict = { 'context': [], 'question': [], 'answer': [] }
+        qa_dict = { 'context': [], 'question': [], 'answer': [], 'answer_start': [] }
         for text_obj in self.data:
             for paragraph in text_obj['paragraphs']:
                 context = paragraph['context']
@@ -26,6 +26,7 @@ class SquadProcessor:
                             qa_dict['context'].append(context)
                             qa_dict['question'].append(question)
                             qa_dict['answer'].append(answer)
+                            qa_dict['answer_start'].append(ans['answer_start'])
         
         return qa_dict
 
