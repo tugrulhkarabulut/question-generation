@@ -6,9 +6,7 @@ import numpy as np
 import re
 import contractions
 import argparse
-import ntpath
-from pathlib import Path
-
+from utils import get_file_name, build_file_path
 
 class SquadProcessor:
     def __init__(self):
@@ -74,7 +72,7 @@ class SquadProcessor:
 
         df['context_answer'] = df.apply(lambda row: self.find_answer_sentence(row.context, row.answer_start), axis = 1)
 
-        for key in ['context', 'question', 'answer']:
+        for key in ['context_answer', 'question', 'answer']:
             df[key] = self.text_preprocess(df[key])
 
         self.df = df
@@ -129,13 +127,6 @@ class SquadProcessor:
         else:
             self.df.to_csv(path)
 
-
-def tokenize_words(sequences):
-    return [wordpunct_tokenize(seq) for seq in sequences]
-
-def tokenize_words_remove_punc(sequences):
-    tk = RegexpTokenizer(r'\w+')
-    return [tk.tokenize(seq) for seq in sequences]
 
 def lowercase_sequences(sequences):
     if isinstance(sequences, pd.Series):
@@ -201,28 +192,19 @@ def split_punctuations(sequences):
     
     return [f(seq) for seq in sequences]
 
-def add_start_end_tokens(sequences):
-  new_sequences = sequences
-  for i, seq in enumerate(sequences):
-    new_sequences[i] = ['<sos>'] + seq + ['<eos>']
-  
-  return new_sequences
-
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Preprocesses squad json file and saves into a csv or pandas dataframe picke file.')
     parser.add_argument('--input', type=str, help='Path for the squad json file.', required=True)
     parser.add_argument('--out', type=str, help='Output path for the preprocessed data.', default='./')
-    parser.add_argument('--out_format', type=str, help='Format for saving the preprocessed data.', choices=['pickle', 'csv'], default='pickle')
+    parser.add_argument('--out_format', type=str, help='Format for saving the preprocessed data.', choices=['pkl', 'csv'], default='pkl')
 
     args = parser.parse_args()
 
     input_ = args.input
-    output = Path(args.out)
+    file_name = get_file_name(input_)
     format_ = args.out_format
-    file_name = ntpath.basename(input_).split('.')[0]
-    output = output / (file_name + '.' + format_)
+    output = build_file_path(args.out, file_name, format_)
 
     return input_, output, format_
 

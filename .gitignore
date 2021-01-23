@@ -6,3 +6,4 @@ data
 .ipynb_checkpoints
 glove-50d.bin
 checkpoints/
+*.pkl
