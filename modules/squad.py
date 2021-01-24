@@ -72,10 +72,12 @@ class SquadProcessor:
 
         df['context_answer'] = df.apply(lambda row: self.find_answer_sentence(row.context, row.answer_start), axis = 1)
 
-        for key in ['context_answer', 'question', 'answer']:
+        keys = ['context_answer', 'question', 'answer']
+
+        for key in keys:
             df[key] = self.text_preprocess(df[key])
 
-        self.df = df
+        self.df = df[keys]
         return self.df
     
 
@@ -117,15 +119,15 @@ class SquadProcessor:
 
         return sequences
 
-    def save(self, path, save_format = 'pickle'):
+    def save(self, path, save_format = 'pkl'):
         if self.df is None:
             print('Data is not preprocessed.')
             return
 
-        if save_format == 'pickle':
+        if save_format == 'pkl':
             self.df.to_pickle(path)
         else:
-            self.df.to_csv(path)
+            self.df.to_csv(path, index = False)
 
 
 def lowercase_sequences(sequences):
@@ -209,9 +211,7 @@ def parse_arguments():
     return input_, output, format_
 
 
-
 if __name__ == '__main__':
-
     input_, output, format_ = parse_arguments() 
 
     processor = SquadProcessor()

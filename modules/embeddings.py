@@ -9,7 +9,7 @@ def load_word_embeddings(path):
         for line in f:
             splitted = line.split()
             word = splitted[0]
-            embedding = np.array([float(val) for val in splitted[1:]])
+            embedding = np.array([float(val) for val in splitted[1:]], dtype=np.float32)
             word_embeddings[word] = embedding
     
     return word_embeddings

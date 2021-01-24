@@ -8,7 +8,6 @@ import argparse
 
 class SquadTokenizer:
     def __init__(self, path, max_input_vocab = 53000, max_output_vocab = 28000, max_input_length = 50, max_output_length = 20):
-
         format_ = get_file_format(path)
         if format_ == 'csv':
             self.data = pd.read_csv(path)
@@ -71,6 +70,7 @@ class SquadTokenizer:
 
     def fit(self, remove_punc = True, merge_context_answer = True, filter_by_length = True, padding = 'post'):
         self.tokenized_data = self.word_tokenize(self.data, remove_punc, merge_context_answer)
+        self.build_tokenizers(self.tokenized_data)
         if filter_by_length:
             self.tokenized_data = self.filter_by_length(self.tokenized_data)
 
@@ -85,18 +85,18 @@ class SquadTokenizer:
 
 
     def save(self, path):
-        with open(path, 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+        f = open(path, 'wb')
+        pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
 
 
 
 def tokenize_words(sequences):
-    return [wordpunct_tokenize(seq) for seq in sequences]
+    return [wordpunct_tokenize(str(seq)) for seq in sequences]
 
 def tokenize_words_remove_punc(sequences):
     tk = RegexpTokenizer(r'\w+')
-    return [tk.tokenize(seq) for seq in sequences]
+    return [tk.tokenize(str(seq)) for seq in sequences]
 
 
 def add_start_end_tokens(sequences):
@@ -117,7 +117,7 @@ def build_tokenizer(sequences, max_words):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Builds tokenizers given the inputs and saves the tokenizer object.')
     parser.add_argument('--input', type=str, help='Path for the squad csv or pkl file.', required=True)
-    parser.add_argument('--out', type=str, help='Output path for tokenizer object.', default='./')
+    parser.add_argument('--out', type=str, help='Output path for tokenizer object.', default='./tokenizer.pkl')
     parser.add_argument('--padding', type=str, help='Padding mode.', choices=['pre', 'post'], default='post')
     parser.add_argument('--include_answers', type=bool, help='Including answers in the input or not', default=True)
     parser.add_argument('--filter_by_length', type=bool, help='Filter out the observations less than the given max_input_length or max_output_length', default=True)
@@ -130,8 +130,6 @@ def parse_arguments():
     args = parser.parse_args()
 
     return args
-
-
 
 if __name__ == '__main__':
     args = parse_arguments()
