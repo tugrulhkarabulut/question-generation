@@ -6,7 +6,7 @@ def load_word_embeddings(path):
     word_embeddings = {}
 
     with open(path) as f:
-        for line in f:
+        for line in tqdm(f):
             splitted = line.split()
             word = splitted[0]
             embedding = np.array([float(val) for val in splitted[1:]], dtype=np.float32)

@@ -1,10 +1,12 @@
-from nltk.tokenize import wordpunct_tokenize, RegexpTokenizer
-from keras_preprocessing.text import Tokenizer
-from keras_preprocessing.sequence import pad_sequences
-from utils import get_file_name, get_file_format, build_file_path
-import pandas as pd
 import pickle
 import argparse
+
+import pandas as pd
+from keras_preprocessing.text import Tokenizer
+from keras_preprocessing.sequence import pad_sequences
+from nltk.tokenize import wordpunct_tokenize, RegexpTokenizer
+
+from utils import get_file_name, get_file_format, build_file_path
 
 class SquadTokenizer:
     def __init__(self, path, max_input_vocab = 53000, max_output_vocab = 28000, max_input_length = 50, max_output_length = 20):
@@ -70,11 +72,12 @@ class SquadTokenizer:
 
     def fit(self, remove_punc = True, merge_context_answer = True, filter_by_length = True, padding = 'post'):
         self.tokenized_data = self.word_tokenize(self.data, remove_punc, merge_context_answer)
-        self.build_tokenizers(self.tokenized_data)
         if filter_by_length:
             self.tokenized_data = self.filter_by_length(self.tokenized_data)
 
-        self.index_tokenized_data = self.index_tokenize(padding)
+        self.build_tokenizers(self.tokenized_data)
+        
+        return self.index_tokenize(padding)
 
     def texts_to_sequences(self, context_texts, question_texts, answer_texts = None, remove_punc = True, merge_context_answer = True, filter_by_length = False, padding = 'post'):
         tokenized_data = self.word_tokenize([context_texts, question_texts, answer_texts], remove_punc, merge_context_answer)
@@ -85,8 +88,8 @@ class SquadTokenizer:
 
 
     def save(self, path):
-        f = open(path, 'wb')
-        pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+        with open(path, 'wb') as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
 
 
@@ -118,6 +121,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Builds tokenizers given the inputs and saves the tokenizer object.')
     parser.add_argument('--input', type=str, help='Path for the squad csv or pkl file.', required=True)
     parser.add_argument('--out', type=str, help='Output path for tokenizer object.', default='./tokenizer.pkl')
+    parser.add_argument('--data_out', type=str, help='Output for the tokenized data', default='./train_data.pkl')
     parser.add_argument('--padding', type=str, help='Padding mode.', choices=['pre', 'post'], default='post')
     parser.add_argument('--include_answers', type=bool, help='Including answers in the input or not', default=True)
     parser.add_argument('--filter_by_length', type=bool, help='Filter out the observations less than the given max_input_length or max_output_length', default=True)
@@ -134,5 +138,9 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     tokenizer = SquadTokenizer(args.input, args.max_input_vocab, args.max_output_vocab, args.max_input_length, args.max_output_length)
-    tokenizer.fit(args.remove_punc, args.include_answers, args.filter_by_length, args.padding)
+    tokenized_data = tokenizer.fit(args.remove_punc, args.include_answers, args.filter_by_length, args.padding)
+    
+    with open(args.data_out, 'wb') as f:
+        pickle.dump(tokenized_data, f, pickle.HIGHEST_PROTOCOL)
+
     tokenizer.save(args.out)

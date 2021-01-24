@@ -1,11 +1,13 @@
 import json
+import re
+import argparse
+
 import pandas as pd
+import numpy as np
 from nltk.tokenize import wordpunct_tokenize, RegexpTokenizer
 from tqdm import tqdm
-import numpy as np
-import re
 import contractions
-import argparse
+
 from utils import get_file_name, build_file_path
 
 class SquadProcessor:
@@ -21,7 +23,7 @@ class SquadProcessor:
     def to_dict(self):
         if self.data is None:
             print('Data is not loaded!')
-            return
+            return None
         
         qa_dict = { 'context': [], 'question': [], 'answer': [], 'answer_start': [] }
         for text_obj in self.data:
@@ -43,7 +45,7 @@ class SquadProcessor:
     def to_df(self):
         if self.data is None:
             print('Data is not loaded!')
-            return
+            return None
 
         return pd.DataFrame(self.to_dict())
 
@@ -122,7 +124,7 @@ class SquadProcessor:
     def save(self, path, save_format = 'pkl'):
         if self.df is None:
             print('Data is not preprocessed.')
-            return
+            return None
 
         if save_format == 'pkl':
             self.df.to_pickle(path)

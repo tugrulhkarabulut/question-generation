@@ -1,0 +1,15 @@
+{
+    "batch_size": 64,
+    "embedding_dim": 300,
+    "hidden_unit_size": 1024,
+    "max_input_size": 50,
+    "max_output_size": 20,
+    "lr": 0.001,
+    "grad_clip": 1.0,
+    "epochs": 20,
+    "lr_decay_freq": null,
+    "train_data_path": "./train_data.pkl",
+    "val_data_path": null,
+    "embeddings_path": "./data/glove.6B.300d.txt",
+    "tokenizer_path": "./tokenizer.pkl"
+}
