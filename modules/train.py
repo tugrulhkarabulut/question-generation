@@ -11,6 +11,8 @@ from model import Encoder, Decoder
 from embeddings import load_word_embeddings
 from tokenizer import SquadTokenizer
 
+from utils import load_tokenizers
+
 
 
 class Trainer:
@@ -25,7 +27,7 @@ class Trainer:
         tokenizer_path = self.train_config["tokenizer_path"]
         embeddings_path = self.train_config["embeddings_path"]
 
-        self.tokenizers = self.load_tokenizers(tokenizer_path)
+        self.tokenizers = load_tokenizers(tokenizer_path)
         self.train_data, self.train_data_size = self.build_dataset(train_data_path)
 
         if val_data_path is not None:
@@ -47,15 +49,6 @@ class Trainer:
         with open(path, 'r') as f:
             data = json.load(f)
         return data
-
-    def load_tokenizers(self, path):
-        if self.verbose:
-            print('Loading tokenizers...')
-
-        with open(path, 'rb') as f:
-            sq_tokenizer = pickle.load(f)
-        
-        return sq_tokenizer.tokenizers
 
     def build_dataset(self, path):
         with open(path, 'rb') as f:
