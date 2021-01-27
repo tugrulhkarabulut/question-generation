@@ -14,7 +14,8 @@ class Inferer:
     def __init__(self, input_path, output_path, 
                  output_format, tokenizer_path, encoder_path, 
                  decoder_path, max_input_length, 
-                 max_output_length, beam_search, beam_width):
+                 max_output_length, beam_search, beam_width, 
+                 replace_unk_mode, verbose):
         self.output_path = output_path
         self.output_format = output_format
         self.load_data(input_path)
@@ -27,6 +28,8 @@ class Inferer:
         self.max_output_length = max_output_length
         self.use_beam_search = beam_search
         self.beam_width = beam_width
+        self.replace_unk_mode = replace_unk_mode
+        self.verbose = verbose
 
     def load_data(self, path):
         with open(path, 'rb') as f:
@@ -161,6 +164,22 @@ class Inferer:
 
         return padded_input_to_sentence(best_candidate, self.tokenizers[1]), att_weights_best
 
+    def replace_unk(self, generated_question, input_text, attentions):
+        new_q = []
+        gq_words = generated_question.split()[:-1]
+
+        for i, w in enumerate(gq_words):
+            if w == '<unk>':
+                best_att_i = np.argmax(attentions[i][:min(len(input_text), 
+                                                    self.max_input_length)])
+                new_q.append(input_text[best_att_i])
+            else:
+                new_q.append(w)
+
+        new_q = ' '.join(new_q)
+        return new_q
+
+
     def save_output(self):
         if self.output_format == 'pkl':
             with open(self.output_path, 'wb') as f:
@@ -177,19 +196,24 @@ class Inferer:
 
         output_data = []
 
-        if self.use_beam_search:
-            for exp in tqdm(self.tokenized_data):
-                output_data.append(self.beam_search(exp)[0])
-        else:
-            for exp in tqdm(self.tokenized_data):
-                output_data.append(self.greedy_search(exp)[0])
+        
+        for i, exp in tqdm(enumerate(self.tokenized_data), verbose = self.verbose):
+            if self.use_beam_search:
+                question, attentions = self.beam_search(exp)
+            else:
+                question, attentions = self.greedy_search(exp)
+
+            if self.replace_unk_mode:
+                question = self.replace_unk(question, self.data[i], attentions)
+            
+            output_data.append(question)
 
         self.output_data = output_data
 
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Trains the encoder decoder model.')
+    parser = argparse.ArgumentParser(description='Generate novel questions given the input sentences.')
     parser.add_argument('--input', type=str, help='Path for the input data', default='./squad_val.pkl')
     parser.add_argument('--out', type=str, help='Ouput path for the inferred data', default='./')
     parser.add_argument('--out_format', type=str, help='Save format for inferred data.', choices=['csv', 'pkl'], default='pkl')
@@ -200,6 +224,8 @@ def parse_arguments():
     parser.add_argument('--max_output_length', type=int, help='Max output length.', default=20)
     parser.add_argument('--beam_search', type=bool, help='Enable or disable beam search.', default=True)
     parser.add_argument('--beam_width', type=int, help='Beam width', default=3)
+    parser.add_argument('--replace-unk', type=int, help='Replace generated <unk> tokens with the word in the input that has highest attention', default=3)
+    parser.add_argument('--verbose', type=bool, help='', default=True)
 
     args = parser.parse_args()
 
@@ -209,14 +235,15 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     input_ = args.input
-    file_name = get_file_name(input_)
+    file_name = get_file_name(input_) + '_generated'
     format_ = args.out_format
     output = build_file_path(args.out, file_name, format_)
 
     inferer = Inferer(
                     input_, output, format_, args.tokenizer_path, 
                     args.encoder_path, args.decoder_path, args.max_input_length, 
-                    args.max_output_length, args.beam_search, args.beam_width)
+                    args.max_output_length, args.beam_search, args.beam_width,
+                    args.replace_unk, args.verbose)
 
     inferer.infer()
     inferer.save_output()

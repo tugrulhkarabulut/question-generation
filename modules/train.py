@@ -238,7 +238,7 @@ def parse_arguments():
     parser.add_argument('--train_config', type=str, help='Path for training config json', default='./train_config.json')
     parser.add_argument('--save_path', type=str, help='Path for saving the model', default='./model')
     parser.add_argument('--load_path', type=str, help='Path for loading the model. Used for continue training.')
-    parser.add_argument('--verbose', type=bool, help='Path for training config json', default=True)
+    parser.add_argument('--verbose', type=bool, help='Print progress', default=True)
 
     args = parser.parse_args()
 
