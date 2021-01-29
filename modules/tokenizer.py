@@ -64,20 +64,21 @@ class SquadTokenizer:
         if padding in ['post', 'pre']:
             max_input_length = max([len(seq) for seq in input_index_tokenized])
             max_output_length = max([len(seq) for seq in output_index_tokenized])
-            input_index_tokenized = pad_sequences(input_index_tokenized, maxlen = max_input_length)
-            output_index_tokenized = pad_sequences(output_index_tokenized, maxlen = max_output_length)
+            input_index_tokenized = pad_sequences(input_index_tokenized, maxlen=max_input_length, padding=padding)
+            output_index_tokenized = pad_sequences(output_index_tokenized, maxlen=max_output_length, padding=padding)
         
         return  [input_index_tokenized, output_index_tokenized]
 
 
     def fit(self, remove_punc = True, merge_context_answer = True, filter_by_length = True, padding = 'post'):
         self.tokenized_data = self.word_tokenize(self.data, remove_punc, merge_context_answer)
+        self.tokenized_data[1] = add_start_end_tokens(self.tokenized_data[1])
         if filter_by_length:
             self.tokenized_data = self.filter_by_length(self.tokenized_data)
 
         self.build_tokenizers(self.tokenized_data)
         
-        return self.index_tokenize(padding)
+        return self.index_tokenize(self.tokenized_data, padding=padding)
 
     def texts_to_sequences(self, context_texts, question_texts, answer_texts = None, remove_punc = True, merge_context_answer = True, filter_by_length = False, padding = 'post'):
         tokenized_data = self.word_tokenize([context_texts, question_texts, answer_texts], remove_punc, merge_context_answer)

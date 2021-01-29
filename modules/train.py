@@ -56,7 +56,6 @@ class Trainer:
         
         dataset = tf.data.Dataset.from_tensor_slices((data[0], data[1])).shuffle(len(data[0]))
         dataset = dataset.batch(self.train_config['batch_size'])
-
         return dataset, len(data[0])
 
     def build_model(self):
@@ -144,7 +143,7 @@ class Trainer:
         epochs = self.train_config["epochs"]
         batch_size = self.train_config["batch_size"]
 
-        steps_per_epoch = len(self.train_data_size) // batch_size
+        steps_per_epoch = self.train_data_size // batch_size
 
         train_losses = []
         val_losses = []
@@ -176,8 +175,6 @@ class Trainer:
                                                         epoch + 1,
                                                         batch,
                                                         batch_loss.numpy())
-
-
                 print(report_str)
             
             
@@ -248,5 +245,6 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     trainer = Trainer(args.train_config, args.save_path, args.load_path, args.verbose)
+    trainer.train()
 
 
