@@ -35,13 +35,15 @@ class Trainer:
         else:
             self.val_data = None
         
-        if verbose:
-            print('Loading word embeddings...')
-        self.word_embeddings = load_word_embeddings(embeddings_path)
 
         if load_path:
+            if verbose:
+                print('Loading the models...')
             self.load()
         else:
+            if verbose:
+                print('Loading word embeddings...')
+            self.word_embeddings = load_word_embeddings(embeddings_path)
             self.build_model()
 
         self.define_objective()
