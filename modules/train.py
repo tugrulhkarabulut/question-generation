@@ -36,7 +36,7 @@ class Trainer:
             self.val_data = None
         
 
-        if load_path:
+        if self.load_path:
             if verbose:
                 print('Loading the models...')
             self.load()
