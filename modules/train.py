@@ -229,8 +229,8 @@ class Trainer:
     def save(self, path = None):
         if not path:
             path = self.save_path
-        self.encoder = self.encoder.save(path + '/encoder')
-        self.decoder = self.decoder.save(path + '/decoder')
+        self.encoder.save(path + '/encoder')
+        self.decoder.save(path + '/decoder')
 
 
 def parse_arguments():
