@@ -1,8 +1,16 @@
 import numpy as np
 import gensim
 from tqdm import tqdm
+from utils import get_file_format
+from gensim.models import KeyedVectors
 
 def load_word_embeddings(path):
+    if get_file_format(path) == 'bin':
+        return KeyedVectors.load_word2vec_format(path, binary=True)
+    else:
+        return load_word_embeddings_txt(path)
+
+def load_word_embeddings_txt(path):
     word_embeddings = {}
 
     with open(path) as f:
