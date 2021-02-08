@@ -149,6 +149,7 @@ class Trainer:
 
         train_losses = []
         val_losses = []
+        loss_not_improved = 0
 
         for epoch in range(epochs):
           start = time.time()
