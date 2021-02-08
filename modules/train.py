@@ -190,8 +190,11 @@ class Trainer:
           avg_train_loss = total_train_loss / steps_per_epoch
           avg_val_loss = total_val_loss / (steps_per_epoch // 100 + 1)
 
+
+          
           train_losses.append(avg_train_loss)
-          val_losses.append(avg_val_loss)
+          if self.val_data:
+            val_losses.append(avg_val_loss)
 
           # Plot losses after the third epoch
           if self.verbose:
@@ -210,11 +213,11 @@ class Trainer:
 
               print('Time taken for 1 epoch {:.0f} seconds\n'.format(time.time() - start))
 
-          if epoch > 1 and avg_val_loss >= val_losses[-2]:
+          if self.val_data and epoch > 1 and avg_val_loss >= val_losses[-2]:
               loss_not_improved += 1
 
 
-          if loss_not_improved >= 2:
+          if self.val_data and loss_not_improved >= 2:
               break
         
 
