@@ -32,6 +32,8 @@ class Trainer:
 
         if val_data_path is not None:
             self.val_data, _ = self.build_dataset(val_data_path)
+        else:
+            self.val_data = None
         
         if verbose:
             print('Loading word embeddings...')
