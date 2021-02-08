@@ -71,11 +71,11 @@ class Inferer:
           result += self.tokenizers[1].index_word[predicted_id] + ' '
 
           if self.tokenizers[1].index_word[predicted_id] == '<eos>':
-            return result, attention, dec_hidden
+            return result, attention
 
           dec_input = tf.expand_dims([predicted_id], 0)
 
-        return result, attention, dec_hidden
+        return result, attention
 
     def beam_search(self, padded_input, return_sequence=False):
         hidden = [self.encoder.initialize_hidden_states(batch_size=1)] * 4
