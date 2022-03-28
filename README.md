@@ -2,8 +2,6 @@
 
 This is an implementation of Encoder-Decoder LSTM with Bahdanau Attention to
 automatic question generation task. SQuAD is used in training and testing.
-If you want to learn about the details and results, check out my 
-[project thesis](https://github.com/tugrulhkarabulut/question-generation/blob/master/project-thesis.pdf).
 
 
 ## How to run
